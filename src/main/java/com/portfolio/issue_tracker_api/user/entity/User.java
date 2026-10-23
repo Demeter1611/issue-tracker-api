@@ -1,6 +1,9 @@
 package com.portfolio.issue_tracker_api.user.entity;
 
+import com.portfolio.issue_tracker_api.project_membership.entity.ProjectMembership;
 import jakarta.persistence.*;
+
+import java.util.Set;
 
 @Entity
 @Table(name = "users")
@@ -11,8 +14,10 @@ public class User {
 
     @Column(unique = true)
     private String username;
-
     private String password;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProjectMembership> memberships;
 
     public User() {}
 

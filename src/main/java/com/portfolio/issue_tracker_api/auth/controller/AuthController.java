@@ -40,6 +40,7 @@ public class AuthController {
 
     @PostMapping("/register")
     public String registerUser(@RequestBody AuthRequest request) {
+        //TODO: refactor to use service instead of repository
         if (userRepository.existsByUsername(request.getUsername())) {
             return "Username already exists";
         }
