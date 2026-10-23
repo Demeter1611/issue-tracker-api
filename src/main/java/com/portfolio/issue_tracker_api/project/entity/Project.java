@@ -24,10 +24,12 @@ public class Project {
     @OneToMany(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProjectMembership> memberships;
 
+    @Column(nullable = false)
+    private Long issueCounter = 0L;
+
     public Project() {}
 
     public Project(String name, String key, String description) {
-        this.id = id;
         this.name = name;
         this.key = key;
         this.description = description;
@@ -49,6 +51,10 @@ public class Project {
         return description;
     }
 
+    public Long getIssueCounter() {
+        return issueCounter;
+    }
+
     public void setName(String name) {
         this.name = name;
     }
@@ -59,5 +65,9 @@ public class Project {
 
     public void setDescription(String description) {
         this.description = description;
+    }
+
+    public void incrementIssueCounter() {
+        this.issueCounter++;
     }
 }
