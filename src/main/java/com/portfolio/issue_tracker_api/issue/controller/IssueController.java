@@ -1,16 +1,12 @@
 package com.portfolio.issue_tracker_api.issue.controller;
 
-import com.portfolio.issue_tracker_api.issue.dto.IssueAssigneeUpdateRequest;
-import com.portfolio.issue_tracker_api.issue.dto.IssueCreateRequest;
-import com.portfolio.issue_tracker_api.issue.dto.IssueResponse;
-import com.portfolio.issue_tracker_api.issue.dto.IssueStatusUpdateRequest;
+import com.portfolio.issue_tracker_api.issue.dto.*;
 import com.portfolio.issue_tracker_api.issue.service.IssueService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.web.bind.annotation.*;
 
 import java.security.Principal;
-import java.util.List;
-import java.util.stream.Collectors;
 
 @RestController
 @RequestMapping("/api/projects/{projectId}/issues")
@@ -29,11 +25,12 @@ public class IssueController {
     }
 
     @GetMapping
-    public List<IssueResponse> getIssues(@PathVariable Long projectId, Principal principal) {
+    public Page<IssueResponse> getIssues(@PathVariable Long projectId,
+                                         @ModelAttribute IssueSearchDto issueSearchDto,
+                                         Principal principal) {
         String currentUsername = principal.getName();
-        return issueService.getIssuesByProject(projectId, currentUsername).stream()
-                .map(IssueResponse::fromEntity)
-                .collect(Collectors.toList());
+        return issueService.getFilteredIssues(projectId, currentUsername, issueSearchDto)
+                .map(IssueResponse::fromEntity);
     }
 
     @PatchMapping("/{issueId}/status")

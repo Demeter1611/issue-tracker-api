@@ -1,15 +1,20 @@
 package com.portfolio.issue_tracker_api.issue.service;
 
 import com.portfolio.issue_tracker_api.issue.dto.IssueCreateRequest;
+import com.portfolio.issue_tracker_api.issue.dto.IssueSearchDto;
 import com.portfolio.issue_tracker_api.issue.entity.Issue;
 import com.portfolio.issue_tracker_api.issue.enums.IssueStatus;
 import com.portfolio.issue_tracker_api.issue.repository.IssueRepository;
+import com.portfolio.issue_tracker_api.issue.specification.IssueSpecification;
 import com.portfolio.issue_tracker_api.project.entity.Project;
 import com.portfolio.issue_tracker_api.project.repository.ProjectRepository;
 import com.portfolio.issue_tracker_api.project.service.ProjectAuthorizationService;
 import com.portfolio.issue_tracker_api.user.entity.User;
 import com.portfolio.issue_tracker_api.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,9 +34,19 @@ public class IssueService {
         this.projectAuthorizationService = projectAuthorizationService;
     }
 
-    public List<Issue> getIssuesByProject(Long projectId, String currentUsername){
+    public Page<Issue> getFilteredIssues(Long projectId, String currentUsername, IssueSearchDto searchDto){
         Project project = projectAuthorizationService.validateUserAccess(projectId, currentUsername);
-        return issueRepository.findByProject(project);
+
+        Specification<Issue> spec = IssueSpecification.filterIssues(
+                projectId,
+                searchDto.getStatus(),
+                searchDto.getType(),
+                searchDto.getAssigneeUsername()
+        );
+
+        Pageable pageable = searchDto.toPageable();
+
+        return issueRepository.findAll(spec, pageable);
     }
 
     public Issue createIssue(Long projectId, String currentUserName, IssueCreateRequest request) {
