@@ -1,4 +1,4 @@
-package com.portfolio.issue_tracker_api.auth.controller.dto;
+package com.portfolio.issue_tracker_api.auth.dto;
 
 public class AuthRequest {
     private String username;

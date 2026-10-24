@@ -1,6 +1,6 @@
 package com.portfolio.issue_tracker_api.auth.controller;
 
-import com.portfolio.issue_tracker_api.auth.controller.dto.AuthRequest;
+import com.portfolio.issue_tracker_api.auth.dto.AuthRequest;
 import com.portfolio.issue_tracker_api.security.JwtUtils;
 import com.portfolio.issue_tracker_api.user.entity.User;
 import com.portfolio.issue_tracker_api.user.repository.UserRepository;
