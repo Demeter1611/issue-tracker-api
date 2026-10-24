@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -34,21 +35,24 @@ public class ProjectController {
     }
 
     @GetMapping("{projectId}/members")
-    public List<UserResponse> getUsersOfProject(@PathVariable Long projectId) {
-        return projectService.getUsersOfProject(projectId).stream()
+    public List<UserResponse> getUsersOfProject(@PathVariable Long projectId, Principal principal) {
+        String currentUsername = principal.getName();
+        return projectService.getUsersOfProject(projectId, currentUsername).stream()
                 .map(UserResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @PostMapping("{projectId}/members/{userId}")
-    public ResponseEntity<Void> addUserToProject(@PathVariable Long projectId, @PathVariable Long userId) {
-        projectService.addUserToProject(projectId, userId);
+    public ResponseEntity<Void> addUserToProject(@PathVariable Long projectId, @PathVariable Long userId, Principal principal) {
+        String currentUsername = principal.getName();
+        projectService.addUserToProject(projectId, currentUsername, userId);
         return ResponseEntity.ok().build();
     }
 
     @DeleteMapping("{projectId}/members/{userId}")
-    public ResponseEntity<Void> removeUserFromProject(@PathVariable Long projectId, @PathVariable Long userId) {
-        projectService.removeUserFromProject(projectId, userId);
+    public ResponseEntity<Void> removeUserFromProject(@PathVariable Long projectId, @PathVariable Long userId, Principal principal) {
+        String currentUsername = principal.getName();
+        projectService.removeUserFromProject(projectId, currentUsername, userId);
         return ResponseEntity.noContent().build();
     }
 }

@@ -6,6 +6,7 @@ import com.portfolio.issue_tracker_api.issue.enums.IssueStatus;
 import com.portfolio.issue_tracker_api.issue.repository.IssueRepository;
 import com.portfolio.issue_tracker_api.project.entity.Project;
 import com.portfolio.issue_tracker_api.project.repository.ProjectRepository;
+import com.portfolio.issue_tracker_api.project.service.ProjectAuthorizationService;
 import com.portfolio.issue_tracker_api.user.entity.User;
 import com.portfolio.issue_tracker_api.user.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,21 +19,23 @@ public class IssueService {
     private final IssueRepository issueRepository;
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
+    private final ProjectAuthorizationService projectAuthorizationService;
 
     @Autowired
-    public IssueService(IssueRepository issueRepository, ProjectRepository projectRepository, UserRepository userRepository) {
+    public IssueService(IssueRepository issueRepository, ProjectRepository projectRepository, UserRepository userRepository, ProjectAuthorizationService projectAuthorizationService) {
         this.issueRepository = issueRepository;
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
+        this.projectAuthorizationService = projectAuthorizationService;
     }
 
-    public List<Issue> getIssuesByProject(Long projectId){
-        return issueRepository.findByProject_Id(projectId);
+    public List<Issue> getIssuesByProject(Long projectId, String currentUsername){
+        Project project = projectAuthorizationService.validateUserAccess(projectId, currentUsername);
+        return issueRepository.findByProject(project);
     }
 
     public Issue createIssue(Long projectId, String currentUserName, IssueCreateRequest request) {
-        Project project = projectRepository.findById(projectId)
-                .orElseThrow(() -> new IllegalArgumentException("Project not found"));
+        Project project = projectAuthorizationService.validateUserAccess(projectId, currentUserName);
 
         User reporter = userRepository.findByUsername(currentUserName)
                 .orElseThrow(() -> new IllegalArgumentException("Reporter not found"));
@@ -62,7 +65,9 @@ public class IssueService {
         return issueRepository.save(newIssue);
     }
 
-    public Issue updateIssueStatus(Long projectId, Long issueId, IssueStatus newStatus) {
+    public Issue updateIssueStatus(Long projectId, String currentUsername, Long issueId, IssueStatus newStatus) {
+        projectAuthorizationService.validateUserAccess(projectId, currentUsername);
+
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new IllegalArgumentException("Issue not found"));
 
@@ -74,7 +79,9 @@ public class IssueService {
         return issueRepository.save(issue);
     }
 
-    public Issue updateIssueAssignee(Long projectId, Long issueId, Long assigneeId) {
+    public Issue updateIssueAssignee(Long projectId, String currentUsername, Long issueId, Long assigneeId) {
+        projectAuthorizationService.validateUserAccess(projectId, currentUsername);
+
         Issue issue = issueRepository.findById(issueId)
                 .orElseThrow(() -> new IllegalArgumentException("Issue not found"));
 

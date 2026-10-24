@@ -29,19 +29,22 @@ public class IssueController {
     }
 
     @GetMapping
-    public List<IssueResponse> getIssues(@PathVariable Long projectId) {
-        return issueService.getIssuesByProject(projectId).stream()
+    public List<IssueResponse> getIssues(@PathVariable Long projectId, Principal principal) {
+        String currentUsername = principal.getName();
+        return issueService.getIssuesByProject(projectId, currentUsername).stream()
                 .map(IssueResponse::fromEntity)
                 .collect(Collectors.toList());
     }
 
     @PatchMapping("/{issueId}/status")
-    public IssueResponse updateIssueStatus(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody IssueStatusUpdateRequest issueStatusUpdateRequest) {
-        return IssueResponse.fromEntity(issueService.updateIssueStatus(projectId, issueId, issueStatusUpdateRequest.getStatus()));
+    public IssueResponse updateIssueStatus(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody IssueStatusUpdateRequest issueStatusUpdateRequest, Principal principal) {
+        String currentUsername = principal.getName();
+        return IssueResponse.fromEntity(issueService.updateIssueStatus(projectId, currentUsername, issueId, issueStatusUpdateRequest.getStatus()));
     }
 
     @PatchMapping("/{issueId}/assignee")
-    public IssueResponse updateIssueAssignee(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody IssueAssigneeUpdateRequest issueAssigneeUpdateRequest) {
-        return IssueResponse.fromEntity(issueService.updateIssueAssignee(projectId, issueId, issueAssigneeUpdateRequest.getAssigneeId()));
+    public IssueResponse updateIssueAssignee(@PathVariable Long projectId, @PathVariable Long issueId, @RequestBody IssueAssigneeUpdateRequest issueAssigneeUpdateRequest, Principal principal) {
+        String currentUsername = principal.getName();
+        return IssueResponse.fromEntity(issueService.updateIssueAssignee(projectId, currentUsername, issueId, issueAssigneeUpdateRequest.getAssigneeId()));
     }
 }

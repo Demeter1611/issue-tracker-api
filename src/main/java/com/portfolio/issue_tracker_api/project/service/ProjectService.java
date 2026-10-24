@@ -19,12 +19,14 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final UserRepository userRepository;
     private final ProjectMembershipRepository projectMembershipRepository;
+    private final ProjectAuthorizationService projectAuthorizationService;
 
     @Autowired
-    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository, ProjectMembershipRepository projectMembershipRepository) {
+    public ProjectService(ProjectRepository projectRepository, UserRepository userRepository, ProjectMembershipRepository projectMembershipRepository, ProjectAuthorizationService projectAuthorizationService) {
         this.projectRepository = projectRepository;
         this.userRepository = userRepository;
         this.projectMembershipRepository = projectMembershipRepository;
+        this.projectAuthorizationService = projectAuthorizationService;
     }
 
     public Project createProject(ProjectRequest request) {
@@ -44,21 +46,24 @@ public class ProjectService {
         return projectRepository.findAll();
     }
 
-    public void addUserToProject(Long projectId, Long userId) {
-        Project project = projectRepository.findById(projectId).orElseThrow(() -> new RuntimeException("Project not found"));
+    public void addUserToProject(Long projectId, String currentUsername, Long userId) {
+        Project project = projectAuthorizationService.validateUserAccess(projectId, currentUsername);
         User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
 
         ProjectMembership projectMembership = new ProjectMembership(project, user);
         projectMembershipRepository.save(projectMembership);
     }
 
-    public List<User> getUsersOfProject(Long projectId){
+    public List<User> getUsersOfProject(Long projectId, String currentUsername){
+        projectAuthorizationService.validateUserAccess(projectId, currentUsername);
+
         return projectMembershipRepository.findByProjectId(projectId).stream()
                 .map(ProjectMembership::getUser)
                 .collect(Collectors.toList());
     }
 
-    public void removeUserFromProject(Long projectId, Long userId) {
+    public void removeUserFromProject(Long projectId, String currentUsername, Long userId) {
+        projectAuthorizationService.validateUserAccess(projectId, currentUsername);
         ProjectMembership projectMembership = projectMembershipRepository.findByProject_IdAndUser_Id(projectId, userId)
                 .orElseThrow(() -> new RuntimeException("ProjectMembership not found"));
         projectMembershipRepository.delete(projectMembership);
