@@ -51,41 +51,6 @@ A RESTful backend utilizing Spring Boot and Spring Security designed with produc
 | `GET` | `/api/users` | Get all Users | - |
 
 ---
-
-## Example Request & Response
-
-### Dynamic Issue Search Query
-`GET /api/projects/1/issues?type=BUG&status=TO_DO&page=0&size=10&sort=createdAt&direction=asc`
-
-### Response Payload Structure
-```json
-{
-  "content": [
-    {
-      "key": "PROJ-101",
-      "summary": "Fix authentication token expiration bug",
-      "description": "JWT tokens expire prematurely during active sessions.",
-      "type": "BUG",
-      "status": "TO_DO",
-      "assignee": {
-        "id": 1,
-        "username": "dev"
-      },
-      "reporter": {
-        "id": 2,
-        "username": "lead"
-      }
-    }
-  ],
-  "page": {
-    "size": 10,
-    "number": 0,
-    "totalElements": 1,
-    "totalPages": 1
-  }
-}
-```
-
 # Local Setup
 ## Prerequisites
 - Docker Desktop installed and running
